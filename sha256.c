@@ -6,11 +6,21 @@
 
  void sha256();
 
+ //see section 4.1.2
  int32_t sig0(uint32_t x);
  uint32_t sig1(uint32_t x);
 
+ //see section 3.2.1
  uint32_t rotr(uint32_t n, uint32_t x);
  uint32_t shr(uint32_t n, uint32_t x);
+
+ //See Section 4.1.2
+ uint32_t SIG0(uint32_t x);
+ uint32_t SIG1(uint32_t x);
+
+ //see section 4.1.2
+ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
+ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
  int main(int argc, char *argv[]){
 
@@ -23,8 +33,7 @@
        
       //Message Schedule
       unit32_t W[64]
-      //Working variables
-        uint32_t a, b, c, d, e, f, g;
+      //Working variables;
                  
       //Temporary Variables
         uint32_t T1, T2;
@@ -37,7 +46,7 @@
          0xa54ff53a,   
          0x510e527f,
          0x9b05688c,
-         0x1f83d9ab,
+       x1f83d9ab,
          0x5be0cd19
  	};
 
@@ -59,8 +68,8 @@
 	     
 	     //Step 3
 	      for (t = 0; t < 64; t++){
-	       T1 = h + SIG_1(e) + Ch(e, f, g) + K[t] + W[t];
-	       T2 = SIG_0(a) + Maj(a, b, c);
+	       T1 = h + SIG1(e) + Ch(e, f, g) + K[t] + W[t];
+	       T2 = SIG0(a) + Maj(a, b, c);
 	       h = g;
 	       g = f;
                f = e;
@@ -94,13 +103,32 @@
 	     
 	       }
 	     
-      uint32_t sig0(uint32_t x){
-     //ROTRn(x) = (x >> n) | (x << (32 - n))
-     //SHR_n(x) = (x >> n)
+     uint32_t sig0(uint32_t x){
      return(rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
                                                                                                                                         
                }
     uint32_t sig1(uint32_t x){
       return(rotr(17, x) ^ rotr(19, x) ^ shr(10, x));
+
+
+
+     //See Section 4.1.2
+    uint32_t SIG0(uint32_t x){
+     return (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+
+ }
+    uint32_t SIG1(uint32_t x){
+     return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
+
+   }
+
+   uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
+     return((x & y) ^ ((!x) & z));
+
+       }
+   uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
+     return((x & y) ^ (x & z) ^ (y & z));
+         
+
 	    
   }
