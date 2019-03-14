@@ -6,6 +6,12 @@
 
  void sha256();
 
+ int32_t sig0(uint32_t x);
+ uint32_t sig1(uint32_t x);
+
+ uint32_t rotr(uint32_t n, uint32_t x);
+ uint32_t shr(uint32_t n, uint32_t x);
+
  int main(int argc, char *argv[]){
 
    sha256();
@@ -16,8 +22,7 @@
   void sha256(){
        
       //Message Schedule
-        uint32_t W[64];
-
+      unit32_t W[64]
       //Working variables
         uint32_t a, b, c, d, e, f, g;
                  
@@ -36,4 +41,42 @@
          0x5be0cd19
  	};
 
-  } 
+
+  //the  current message block
+    uint32_t M[16];
+      
+  // for looping 
+     int t;
+  
+       for(t =0; t <  16; t++)
+           W[t] = M[t];
+  
+         for(t = 16; t <64; t++)
+             sig_1(W[t-2]) + W[t-7] + sig_0(W[t-15]) + W[t-16];
+  
+  
+    }
+  
+     uint32_t rotr(uint32_t n, uint32_t x){
+      
+ 
+    }
+     uint32_t shr(uint32_t n, uint32_t x){
+   
+  
+  
+    }
+  
+     uint32_t sig0(uint32_t x){
+         
+  
+                                    
+  
+    }
+     uint32_t sig1(uint32_t x){
+  
+  
+    }	
+	
+
+
