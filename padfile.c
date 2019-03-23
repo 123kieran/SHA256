@@ -1,15 +1,24 @@
 #include <stdio.h>
 #include <stdint.h>
+union msgblock {
+    uint8_t e[64];
+    uint32_t t[16];
+    uint64_t s[8];
+};
 
 int main(int argc, char *argv[]) {
-       	FILE* f;
+      union msgblock M;
 
-	 char c;
+      uint64_t nobytes;
 
+      FILE* f;
          f = fopen(argv[1], "r");
 
-         printf("%c\n", fread(&c, 1, 1, f));
+	 while (!feof(f)){
 
+         nobytes= fread(M.e,1,64,f);
+         printf("%llu\n",nobytes);
+	 }
 	 fclose(f);
 
 	return 0;
