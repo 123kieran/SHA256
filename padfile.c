@@ -5,6 +5,7 @@ union msgblock {
     uint32_t t[16];
     uint64_t s[8];
 };
+enum status (READ, PAD0, PAD1, FINISH);
 
 int main(int argc, char *argv[]) {
       union msgblock M;
@@ -13,12 +14,14 @@ int main(int argc, char *argv[]) {
 
       uint64_t nobytes;
 
+      enum status S = READ;
+
       FILE* f;
 
 
          f = fopen(argv[1], "r");
 
-	 while (!feof(f)){
+	 while (S==READ){
 
           nobytes =  fread(M.e, 1, 64, f);
 	  printf("Read %2llu bytes\n", nobytes);
@@ -32,6 +35,7 @@ int main(int argc, char *argv[]) {
 		  }							     
 		   // Setting last 8 bytes as 64 bit integer
 		    M.s[7] = nobits;
+		    S==FINISH;
               }
                  }
 						                  
