@@ -43,19 +43,16 @@
      
       sha256(f); 
 
-      return 0 ;
+      return ;
      }
 
 //sha256 function (return 256 message digest) array of 32 bit integers
   void sha256(){
-     
-	  //The current message block
        union msgblock M;
 
-       //The number of bits read from the file
        uint64_t nobits=0;
-
-       //The ststus of the message blocks, in terms of padding	        
+       uint64_t nobytes;
+		        
        enum status S = READ;
 
       //The K Constants. Defined in Section 4.2.2
@@ -97,6 +94,9 @@
          0x5be0cd19
  	};
 
+
+  //the  current message block
+    uint32_t M[16] = {0,0,0,0,0,0,0,0};
       
   // for looping 
      int i,t;
@@ -106,7 +106,7 @@
 
   
        for(t =0; t <  16; t++)
-           W[t] = M.t[t];
+           W[t] = M[t];
   
        for(t = 16; t <64; t++)
           W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
@@ -177,47 +177,55 @@
   }
    
 int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits){
- 	//The number of bytes we get from fread
+    //The number of bytes to get from fread
      uint64_t nobytes;
-
-   
-	//for looping
+	
+	//For looping
      int i;
 
      while (S == READ){
      nobytes = fread(M.e,1,64,f);
-
      printf("Read %2llu bytes\n", nobytes);	
-     	  nobits = nobits + (nobytes * 8);									  	  if (nobytes < 56) {
-											  		  printf("Ive found a block with less than 55 bytes!\n");
-												  		  M.e[nobytes] = 0x80;
-												  		  while (nobytes < 56) {	
-					 						  		    nobytes = nobytes + 1;
-												    	       	    M.e[nobytes] = 0x00;
-												    		  }							     
-											  		   // Setting last 8 bytes as 64 bit integer
-												   		    M.s[7] = nobits;
-										    		    		    S = FINISH;
+     	  nobits = nobits + (nobytes * 8);
+	  if (nobytes < 56) {
+	  printf("Ive found a block with less than 55 bytes!\n");
+	  M.e[nobytes] = 0x80;
+	  while (nobytes < 56) {	
+          nobytes = nobytes + 1;
+  	  M.e[nobytes] = 0x00;
+	 }							     
+	 // Setting last 8 bytes as 64 bit integer
+	 M.s[7] = nobits;
+	 S = FINISH;
      }
-							    		    		                  	  else if(nobytes <64){
+	 else if(nobytes <64){
 	  S=PAD0;
 	  M.e[nobytes]=0x80;
 
-	  		    		                  	  						while(nobytes<64){	 		    		                 
-														nobytes = nobytes +1;										 	  M.e[nobytes] = 0x00;
-														}
-	  		    		                  	  																			}
-	  		    		                  	  																			//Figuring out of finnished reading and happens to be exactly 512 bytes		    		    		    		                  	  							
-	else if(feof(f)){											S = PAD1;																						        		}
-												        	if(S == PAD0|| S == PAD1)
-	for(int i = 0;i<56;i++){ 		    		                  	  			   M.e[i] = 0x00;					 	     
+       	while(nobytes<64){	 		    		                 
+	nobytes = nobytes +1;	
+	M.e[nobytes] = 0x00;
+	}                	  																	}				
+	else if(feof(f)){			
+	S = PAD1;		
+	}
+	 }
+	if(S == PAD0|| S == PAD1)
+	for(int i = 0;i<56;i++){ 		    	
+		M.e[i] = 0x00;					 	     
 	 M.s[7] = nobits;
 	}
 	}
-														if(S == PAD1){							  		    		             M.e[0] = 0x80;										  	}														      
-     fclose(f);	    		                  	  																														        		    for(int i = 0; i < 64; i++){
+
+									
+     if(S == PAD1){
+       M.e[0] = 0x80;	
+     }												      
+     fclose(f);	 
+     for(int i = 0; i < 64; i++){
 	 printf("%x", M.e[i]);
 	 printf("\n"); 
-	 }				   
-														 return 0;
+	 }
+
+	return 0;
     }
