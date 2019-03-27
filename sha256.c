@@ -38,21 +38,29 @@
  int main(int argc, char *argv[]){
 
 	 //ADD ERROR CHECKING
+	 //Open the file given as command line argument
       FILE* f;
       f = fopen(argv[1], "r");
      
+      //run the SHA on the file
       sha256(f); 
+
+      //close the file
+      fclose(f);
 
       return ;
      }
 
 //sha256 function (return 256 message digest) array of 32 bit integers
   void sha256(){
+	  //the current message block
        union msgblock M;
 
+       //the number of bits read from the file
        uint64_t nobits=0;
-       uint64_t nobytes;
-		        
+      
+
+       //the status of the message blocks, in terms of padding	        
        enum status S = READ;
 
       //The K Constants. Defined in Section 4.2.2
@@ -128,8 +136,6 @@
                a = T1 + T2;
      
            }
-    
-	     
            //Step 4.
               H[0] = a + H[0];
               H[1] = b + H[1];
@@ -182,50 +188,66 @@ int nextmsgblock(FILE *f, union msgblock *M, enum status *S, int *nobits){
 	
 	//For looping
      int i;
+	//if we have finished all the message blosks, then S should be 0
+     if(*S == FINISH)
+        return 0;
 
-     while (S == READ){
-     nobytes = fread(M.e,1,64,f);
-     printf("Read %2llu bytes\n", nobytes);	
-     	  nobits = nobits + (nobytes * 8);
-	  if (nobytes < 56) {
-	  printf("Ive found a block with less than 55 bytes!\n");
-	  M.e[nobytes] = 0x80;
-	  while (nobytes < 56) {	
-          nobytes = nobytes + 1;
-  	  M.e[nobytes] = 0x00;
-	 }							     
-	 // Setting last 8 bytes as 64 bit integer
-	 M.s[7] = nobits;
-	 S = FINISH;
+	//otherwise check if we need another block of padding
+	if( *S == PAD0|| *S == PAD1){
+		//set the first 56 bytes to all zero bits
+	for(int i = 0;i<56;i++)		
+	   M->e[i] = 0x00;
+	//set the last 64 bits to the number in the file (Should be big endian)	 
+  	   M->s[7] = *nobits;
+	   //tell S were finished
+	  *S= FINISH;
+	
+	//if S was PAD1, then set the first bit of M to one.
+	if(S == PAD1)							
+	M.e[0] = 0x80;
+	//keep the look going for one more iteration
+	return 1;
+	}
+
+
+//if we get here we havent finished reading the (file S==READ)
+
+     
+     nobytes = fread(M->e,1,64,f);
+    	//keep track of number of bytes read
+     *nobits = *nobits + (nobytes * 8);
+     //if we read less than 56 bytes, we can put all padding in this message block
+      if (nobytes < 56) {
+     //add the one bit, as per the standard
+      M->e[nobytes] = 0x80;
+     //Add xero bits until the last 64 bits
+      while (nobytes < 56) {	
+      nobytes = nobytes + 1;
+      M->e[nobytes] = 0x00;
+     }							     
+     //Append the file size in bits as a unsigned 64 bit int
+      M.s[7] = nobits;
+      //tell S were finished
+      *S = FINISH;
+      //otherwise, check can we put some padding into this message block
+      }else if(nobytes <64){
+      //Tell S we neex anothe message block, whit padding but no one bit
+      *S=PAD0;
+      //put the one bit into the current block
+      M->e[nobytes]=0x80;
+      //Pad the rest of the block with zero bits
+      while(nobytes<64){	 		    		                 
+      nobytes = nobytes +1;	
+      M.e[nobytes] = 0x00;
+     }                	  									//Otherwise, check if were just at the end of the file
+    } else if(feof(f)){	
+	//tell S that we need another message block with all the padding	    
+      *S = PAD1;		
      }
-	 else if(nobytes <64){
-	  S=PAD0;
-	  M.e[nobytes]=0x80;
-
-       	while(nobytes<64){	 		    		                 
-	nobytes = nobytes +1;	
-	M.e[nobytes] = 0x00;
-	}                	  																	}				
-	else if(feof(f)){			
-	S = PAD1;		
-	}
-	 }
-	if(S == PAD0|| S == PAD1)
-	for(int i = 0;i<56;i++){ 		    	
-		M.e[i] = 0x00;					 	     
-	 M.s[7] = nobits;
-	}
-	}
-
-									
-     if(S == PAD1){
-       M.e[0] = 0x80;	
-     }												      
-     fclose(f);	 
-     for(int i = 0; i < 64; i++){
-	 printf("%x", M.e[i]);
-	 printf("\n"); 
-	 }
-
-	return 0;
+    
+												      
+	 
+   
+	//if we get this far, then return 1 so this function is called again
+	return 1;
     }
