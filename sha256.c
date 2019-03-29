@@ -46,14 +46,16 @@
       FILE* msgf;
      msgf  = fopen(argv[1], "r");
      
-      //run the SHA on the file
-      sha256(msgf); 
-
-      //close the file
-      fclose(msgf);
-
-      return 0 ;
-     }
+       if (msgf == NULL) {     
+	   printf("Error opening file");
+       }else{
+	 //run SHA on the file      
+	 sha256(msgf);
+       }//end else
+       //close the file
+         fclose(msgf);
+	   return 0;
+ }//end main
 
 //sha256 function (return 256 message digest) array of 32 bit integers
   void sha256(FILE *msgf){
