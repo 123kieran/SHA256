@@ -3,6 +3,10 @@
 
  #include <stdio.h>
  #include <stdint.h>
+
+#define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24))
+
+
 //Represents a message block
  union msgblock {
     uint8_t e[64];
@@ -147,8 +151,10 @@
      
 	     
            }
-     printf("%x, %x, %x, %x, %x, %x, %x, %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-  }
+       printf("%x %x %x %x %x %x %x %x\n",H[0], H[1],H[2],H[3], H[4], H[5], H[6],  H[7]);
+         printf("%x %x %x %x %x %x %x %x\n",SWAP_UINT32(H[0]),SWAP_UINT32(H[1]),SWAP_UINT32(H[2]),
+			   SWAP_UINT32(H[3]),SWAP_UINT32(H[4]),SWAP_UINT32(H[5]),SWAP_UINT32(H[6]),SWAP_UINT32(H[7]));
+	  }
   
  uint32_t rotr(uint32_t n, uint32_t x){
    return (x >> n) | (x << (32 -n));
