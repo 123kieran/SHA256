@@ -15,7 +15,7 @@ This application is an interpretation of the sha256 algorithm. It is based on th
 * Here I have chosen the program to hash itself.
 
 ## Test
-
+* I used the following like to test my output. https://www.xorbin.com/tools/sha256-hash-calculator
 
 ## Additional Features
 * Error handling is added to the program. Before opening the file. The program to see if the file is empty and if it is it gives an error message
