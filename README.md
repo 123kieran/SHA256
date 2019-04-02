@@ -42,3 +42,7 @@ should be performed on.
 * [Little Endian vs Big Endian](https://www.geeksforgeeks.org/little-and-big-endian-mystery/)
 
 * [Converting Little to Big Endian and Vice Versaa](https://stackoverflow.com/questions/19275955/convert-little-endian-to-big-endian)
+
+* [Testing with Hash calculator](https://www.xorbin.com/tools/sha256-hash-calculator)
+
+
